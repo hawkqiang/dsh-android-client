@@ -7,8 +7,8 @@
 ```
 dsh-android-client/
 ├── AndroidManifest.xml
+├── LICENSE                                    # MIT
 ├── build.sh                                   # 纯 Termux 原生环境可重复构建脚本
-├── keystore/dsh-client-release.jks            # 持久化签名密钥（覆盖升级自动复用）
 ├── scripts/dsh-termux-ctl.sh                  # 独立 Termux 后端控制脚本（不修改现有 DSH）
 ├── res/                                       # 矢量图标、菜单、主题与本地明文安全配置
 ├── src/com/deepseek/dshclient/
@@ -48,11 +48,33 @@ dsh-android-client/
 ## 重新编译与覆盖升级
 
 ```bash
-bash /storage/emulated/0/dsh_project/dsh-android-client/build.sh
+bash build.sh
 ```
 
-- 每次构建会自动复用 `keystore/dsh-client-release.jks`，确保后续版本可直接覆盖安装保留登录 Cookie 和配置。
+- 签名密钥与密码都不在仓库里，默认位于 `~/.dsh-keys/`（`dsh-client-release.jks` + `dsh-client-release.pass`，均 0600）。可用 `DSH_KEYSTORE`、`DSH_KEYSTORE_PASS`、`DSH_KEYSTORE_PASS_FILE`、`DSH_KEY_ALIAS` 覆盖。
+- 首次在没有密钥的机器上构建会**自动生成**新密钥并写入密码文件；生成的签名与作者的不同，因此无法覆盖作者已安装的版本（见下节）。
 - 构建完成后自动输出到 `/storage/emulated/0/Download/dsh-android-client.apk`。
+
+## 签名与安全
+
+**这就是「唯一签名」的实现方式**：Android 只接受用**同一私钥**签名的升级包，而私钥只存在于构建者的设备上。
+
+- 证书 SHA-256 指纹（可用来核对手上的 APK 是不是本人的构建）：
+
+  ```
+  cert SHA-256: c4293611f83a6662abc3aa41587ae9d21020b743efd095319167681d939bd9a4
+  cert DN     : CN=DeepSeek Harness Client, OU=Local, O=DSH, L=Local, ST=Local, C=CN
+  ```
+
+- 校验下载到的 APK：
+
+  ```bash
+  apksigner verify --print-certs dsh-android-client.apk | grep 'SHA-256 digest'
+  ```
+
+- 其他人从本仓库构建出来的包签名不同 → 系统会拒绝其覆盖安装，无法冒充更新。
+- 密码是 40 位随机串，仅保存在 `~/.dsh-keys/`；`build.sh` 里没有任何默认密码。
+- **务必备份** `~/.dsh-keys/`（jks + pass）。丢失后无法再生成同签名升级包，只能卸载重装。
 
 ## 使用前提
 

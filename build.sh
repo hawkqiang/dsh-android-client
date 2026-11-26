@@ -19,10 +19,15 @@ DEX_DIR="$BUILD_DIR/dex"
 RES_FLAT_DIR="$BUILD_DIR/res-flat"
 DIST_DIR="$SCRIPT_DIR/dist"
 
-KEYSTORE_DIR="$SCRIPT_DIR/keystore"
-KEYSTORE_FILE="$KEYSTORE_DIR/dsh-client-release.jks"
-KEY_ALIAS="dsh-client"
-KEY_PASS="${DSH_KEYSTORE_PASS:-dshclient123}"
+# Signing material lives OUTSIDE the repository so it can never be committed:
+#   ~/.dsh-keys/dsh-client-release.jks   (PKCS12 private key, mode 600)
+#   ~/.dsh-keys/dsh-client-release.pass  (random password, mode 600)
+# The key is what makes this app's signature unique: Android only accepts an update
+# signed by the same key, and nobody can produce one without this file.
+KEYSTORE_DIR="${DSH_KEYSTORE_DIR:-$HOME/.dsh-keys}"
+KEYSTORE_FILE="${DSH_KEYSTORE:-$KEYSTORE_DIR/dsh-client-release.jks}"
+KEYSTORE_PASS_FILE="${DSH_KEYSTORE_PASS_FILE:-$KEYSTORE_DIR/dsh-client-release.pass}"
+KEY_ALIAS="${DSH_KEY_ALIAS:-dsh-client}"
 
 APK_NAME="${APK_NAME:-dsh-android-client.apk}"
 DOWNLOAD_DIR="${DOWNLOAD_DIR:-/storage/emulated/0/Download}"
@@ -43,9 +48,19 @@ for tool in aapt aapt2 javac d8 zipalign apksigner keytool; do
 done
 [ -f "$ANDROID_JAR" ] || die "android.jar not found: $ANDROID_JAR"
 
-# Ensure persistent signing keystore exists (preserved across builds for in-place upgrades).
+# Resolve the keystore password: explicit env var > private password file.
+KEY_PASS="${DSH_KEYSTORE_PASS:-}"
+if [ -z "$KEY_PASS" ] && [ -f "$KEYSTORE_PASS_FILE" ]; then
+  KEY_PASS="$(cat "$KEYSTORE_PASS_FILE")"
+fi
+
+# Ensure the persistent signing keystore exists (reused on every build for in-place upgrades).
 mkdir -p "$KEYSTORE_DIR"
+chmod 700 "$KEYSTORE_DIR" 2>/dev/null || true
 if [ ! -f "$KEYSTORE_FILE" ]; then
+  if [ -z "$KEY_PASS" ]; then
+    KEY_PASS="$(tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 40)"
+  fi
   log "Generating persistent signing keystore: $KEYSTORE_FILE"
   keytool -genkeypair \
     -keystore "$KEYSTORE_FILE" \
@@ -57,7 +72,13 @@ if [ ! -f "$KEYSTORE_FILE" ]; then
     -keysize 2048 \
     -validity 10000 \
     -dname "CN=DeepSeek Harness Client, OU=Local, O=DSH, L=Local, ST=Local, C=CN"
+  printf '%s' "$KEY_PASS" > "$KEYSTORE_PASS_FILE"
+  chmod 600 "$KEYSTORE_FILE" "$KEYSTORE_PASS_FILE"
+  log "Saved keystore password to: $KEYSTORE_PASS_FILE (keep both files backed up and private)"
 else
+  [ -n "$KEY_PASS" ] || die "Keystore found at $KEYSTORE_FILE but its password is unknown.
+  Set DSH_KEYSTORE_PASS or restore $KEYSTORE_PASS_FILE. Without the matching key the
+  build cannot produce an APK that upgrades the installed app."
   log "Reusing persistent signing keystore: $KEYSTORE_FILE"
 fi
 

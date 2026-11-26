@@ -1,0 +1,14 @@
+# Build outputs
+build/
+dist/
+*.apk
+
+# Local signing material is generated on the first build and must never be published
+keystore/
+*.jks
+*.keystore
+
+# Editor / OS noise
+.DS_Store
+Thumbs.db
+*.swp

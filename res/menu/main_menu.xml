@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_reload"
+        android:title="@string/menu_reload"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_backend_status"
+        android:title="@string/menu_backend_status"
+        android:showAsAction="ifRoom" />
+    <item
+        android:id="@+id/action_backend_start"
+        android:title="@string/menu_backend_start"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_backend_restart"
+        android:title="@string/menu_backend_restart"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_backend_stop"
+        android:title="@string/menu_backend_stop"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_backend_logs"
+        android:title="@string/menu_backend_logs"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_toggle_fullscreen"
+        android:title="@string/menu_toggle_fullscreen"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_copy_url"
+        android:title="@string/menu_copy_url"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_paste_auth_url"
+        android:title="@string/menu_paste_auth_url"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_settings"
+        android:title="@string/menu_settings"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_clear_cache"
+        android:title="@string/menu_clear_cache"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_close_frontend"
+        android:title="@string/menu_close_frontend"
+        android:showAsAction="never" />
+    <item
+        android:id="@+id/action_stop_and_exit"
+        android:title="@string/menu_stop_and_exit"
+        android:showAsAction="never" />
+</menu>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">DSH Client</string>
+    <string name="app_title">DeepSeek Harness</string>
+    <string name="menu_open">菜单</string>
+    <string name="menu_reload">刷新页面</string>
+    <string name="menu_backend_start">启动后端</string>
+    <string name="menu_backend_stop">停止后端</string>
+    <string name="menu_backend_restart">重启后端</string>
+    <string name="menu_backend_status">后端状态</string>
+    <string name="menu_backend_logs">查看日志</string>
+    <string name="menu_toggle_fullscreen">切换全屏 / 顶栏</string>
+    <string name="menu_copy_url">复制当前地址</string>
+    <string name="menu_clear_cache">清理页面缓存</string>
+    <string name="menu_settings">连接与脚本配置</string>
+    <string name="menu_paste_auth_url">粘贴认证链接</string>
+    <string name="menu_close_frontend">仅关闭前端（保留后端）</string>
+    <string name="menu_stop_and_exit">停止后端并退出</string>
+</resources>

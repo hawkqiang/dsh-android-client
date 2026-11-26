@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Light system chrome. No framework ActionBar: the app draws its own insets-aware
+         top bar (Android 15/16 forces edge-to-edge for targetSdk 35). -->
+    <style name="AppTheme" parent="android:Theme.DeviceDefault.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <!-- Never let the platform auto-darken WebView content (API 29+). -->
+        <item name="android:forceDarkAllowed">false</item>
+    </style>
+</resources>
